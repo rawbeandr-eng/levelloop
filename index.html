@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thapaliya Differential Leveling Calculator</title>
+    <title>Differential Leveling Calculator</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -136,15 +136,15 @@
     <div class="summary-grid">
         <div class="summary-item">
             <span class="summary-label">Sum BS</span>
-            <span class="summary-value" id="sumBs">0.00</span>
+            <span class="summary-value" id="sumBs">0.000</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">Sum FS</span>
-            <span class="summary-value" id="sumFs">0.00</span>
+            <span class="summary-value" id="sumFs">0.000</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">Page Check (BS - FS)</span>
-            <span class="summary-value" id="pageCheck">0.00</span>
+            <span class="summary-value" id="pageCheck">0.000</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">Total Dist (TD)</span>
@@ -152,15 +152,15 @@
         </div>
         <div class="summary-item">
             <span class="summary-label">Error of Closure (EC)</span>
-            <span class="summary-value" id="closureError">0.00</span>
+            <span class="summary-value" id="closureError">0.000</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">Allowable Error (AE)</span>
-            <span class="summary-value" id="allowableError">0.00</span>
+            <span class="summary-value" id="allowableError">0.000</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">Total Correction (TC)</span>
-            <span class="summary-value" id="totalCorr">0.00</span>
+            <span class="summary-value" id="totalCorr">0.000</span>
         </div>
         <div class="summary-item">
             <span class="summary-label">K Factor (TC / TD)</span>
@@ -181,16 +181,14 @@
         const isFirst = tableBody.children.length === 0;
         const tr = document.createElement('tr');
         
-        // The first row has an editable ELEV input and disabled FS fields. 
-        // Subsequent rows have a read-only ELEV span.
         tr.innerHTML = `
             <td><input type="text" class="sta" oninput="calculate()"></td>
-            <td><input type="number" step="0.01" class="bs" oninput="calculate()"></td>
+            <td><input type="number" step="0.001" class="bs" oninput="calculate()"></td>
             <td class="readonly hi"></td>
-            <td><input type="number" step="0.01" class="fs" oninput="calculate()" ${isFirst ? 'disabled' : ''}></td>
+            <td><input type="number" step="0.001" class="fs" oninput="calculate()" ${isFirst ? 'disabled' : ''}></td>
             <td>
                 ${isFirst 
-                    ? '<input type="number" step="0.01" class="elev-input" oninput="calculate()" placeholder="BM Elev">' 
+                    ? '<input type="number" step="0.001" class="elev-input" oninput="calculate()" placeholder="BM Elev">' 
                     : '<span class="readonly elev"></span>'
                 }
             </td>
@@ -207,7 +205,6 @@
     function calculate() {
         const rows = document.querySelectorAll('#tableBody tr');
         
-        // Grab the starting elevation directly from the first row's input
         const firstRowElevInput = document.querySelector('.elev-input');
         let startElev = firstRowElevInput ? parseFloat(firstRowElevInput.value) : 0;
         if (isNaN(startElev)) startElev = 0;
@@ -244,9 +241,9 @@
                 lastCalculatedElev = currentElev;
             }
 
-            // Only update ELEV text if it's NOT the first row 
+            // Display ELEV with 3 decimal places
             if (index !== 0) {
-                row.querySelector('.elev').innerText = currentElev.toFixed(2);
+                row.querySelector('.elev').innerText = currentElev.toFixed(3);
             }
 
             // HI calc
@@ -257,7 +254,8 @@
                 currentHi = NaN; 
             }
 
-            row.querySelector('.hi').innerText = isNaN(currentHi) ? '' : currentHi.toFixed(2);
+            // Display HI with 3 decimal places
+            row.querySelector('.hi').innerText = isNaN(currentHi) ? '' : currentHi.toFixed(3);
 
             // Distances
             cumulativeDist += (bsD + fsD);
@@ -275,9 +273,9 @@
         const ec = lastCalculatedElev - startElev;
         const ae = 0.05 * Math.sqrt(cumulativeDist / 5280);
 
-        document.getElementById('sumBs').innerText = sumBs.toFixed(2);
-        document.getElementById('sumFs').innerText = sumFs.toFixed(2);
-        document.getElementById('pageCheck').innerText = pageCheck.toFixed(2);
+        document.getElementById('sumBs').innerText = sumBs.toFixed(3);
+        document.getElementById('sumFs').innerText = sumFs.toFixed(3);
+        document.getElementById('pageCheck').innerText = pageCheck.toFixed(3);
         document.getElementById('totalDist').innerText = cumulativeDist.toFixed(2);
         document.getElementById('closureError').innerText = ec.toFixed(3);
         document.getElementById('allowableError').innerText = '± ' + ae.toFixed(3);
@@ -302,7 +300,8 @@
                 const adjElev = currentElev + corr;
 
                 row.querySelector('.corr').innerText = corr.toFixed(3);
-                row.querySelector('.adjElev').innerText = adjElev.toFixed(2);
+                // Display Adjusted Elev with 3 decimal places
+                row.querySelector('.adjElev').innerText = adjElev.toFixed(3);
             } else {
                 row.querySelector('.corr').innerText = '';
                 row.querySelector('.adjElev').innerText = '';
